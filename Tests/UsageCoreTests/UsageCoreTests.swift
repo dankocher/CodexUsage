@@ -37,7 +37,7 @@ final class UsageCoreTests: XCTestCase {
     func testOtherWeeklyNeverReplacesGeneralWeekly() throws {
         let value = try decode(RateLimitsResponse.self, #"{"rateLimitsByLimitId":{"spark":{"primary":{"windowDurationMins":10080,"usedPercent":50}}}}"#)
         XCTAssertNil(value.weekly)
-        XCTAssertEqual(UsageFormat.statusTitle(window: value.weekly, stale: false), "C —")
+        XCTAssertEqual(UsageFormat.statusTitle(window: value.weekly, resetsAvailable: nil, stale: false), "C —")
     }
     func testLegacyAndEmptyMapFallback() throws {
         let value = try decode(RateLimitsResponse.self, #"{"rateLimitsByLimitId":{},"rateLimits":{"secondary":{"windowDurationMins":10080,"usedPercent":0}}}"#)
@@ -69,7 +69,16 @@ final class UsageCoreTests: XCTestCase {
         XCTAssertEqual(UsageFormat.countdown(to: now.addingTimeInterval(86_400), now: now), "1d 0h")
         XCTAssertEqual(UsageFormat.countdown(to: now.addingTimeInterval(273_600), now: now), "3d 4h")
         let expired = try window(reset: now.timeIntervalSince1970 - 1)
-        XCTAssertEqual(UsageFormat.statusTitle(window: expired, stale: true, now: now), "C 64% · Pending !")
+        XCTAssertEqual(UsageFormat.statusTitle(window: expired, resetsAvailable: 1, stale: true, now: now), "C 64% · Pending · 1R !")
+    }
+    func testStatusBarShowsResetCountOnlyWhenKnown() throws {
+        let active = try window(reset: 1_800_000_000 + 3 * 86_400 + 4 * 3_600)
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        XCTAssertEqual(UsageFormat.statusTitle(window: active, resetsAvailable: 1, stale: false, now: now), "C 64% · 3d 4h · 1R")
+        XCTAssertEqual(UsageFormat.statusTitle(window: active, resetsAvailable: 0, stale: false, now: now), "C 64% · 3d 4h · 0R")
+        XCTAssertEqual(UsageFormat.statusTitle(window: active, resetsAvailable: nil, stale: false, now: now), "C 64% · 3d 4h")
+        XCTAssertEqual(UsageFormat.statusTitle(window: nil, resetsAvailable: 2, stale: true, now: now), "C — · 2R !")
+        XCTAssertEqual(UsageFormat.statusTitle(window: active, resetsAvailable: -2, stale: false, now: now), "C 64% · 3d 4h · 0R")
     }
     func testDatesUseChosenTimeZoneAcrossMidnight() {
         let date = Date(timeIntervalSince1970: 0)

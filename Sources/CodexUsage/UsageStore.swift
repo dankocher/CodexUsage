@@ -38,7 +38,11 @@ final class UsageStore: ObservableObject {
     var stale: Bool {
         state.error != nil || snapshot.map { now.timeIntervalSince($0.fetchedAt) > Double(intervalMinutes * 60 + 30) } == true
     }
-    var statusTitle: String { UsageFormat.statusTitle(window: snapshot?.limits.weekly, stale: stale, now: now) }
+    var statusTitle: String {
+        UsageFormat.statusTitle(window: snapshot?.limits.weekly,
+                                resetsAvailable: snapshot?.limits.rateLimitResetCredits?.availableCount,
+                                stale: stale, now: now)
+    }
 
     func start() {
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in

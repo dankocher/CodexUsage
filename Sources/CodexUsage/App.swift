@@ -15,7 +15,9 @@ enum CodexUsageApp {
                     let snapshot = try await AppServerClient(executablePath: path).fetch()
                     let summary: [String: Any] = [
                         "executable": snapshot.executable,
-                        "statusBar": UsageFormat.statusTitle(window: snapshot.limits.weekly, stale: false),
+                        "statusBar": UsageFormat.statusTitle(window: snapshot.limits.weekly,
+                                                              resetsAvailable: snapshot.limits.rateLimitResetCredits?.availableCount,
+                                                              stale: false),
                         "groups": snapshot.limits.groups.map { ["id": $0.id, "windows": $0.bucket.windows.map { ["minutes": $0.windowDurationMins ?? 0, "remaining": $0.remainingPercent ?? -1] as [String: Any] }] },
                         "resetCreditsAvailable": snapshot.limits.rateLimitResetCredits?.availableCount as Any? ?? NSNull(),
                         "activityAvailable": snapshot.activity != nil,

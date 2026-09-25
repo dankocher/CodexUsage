@@ -27,10 +27,16 @@ public enum UsageFormat {
         return formatter.string(from: date)
     }
 
-    public static func statusTitle(window: UsageWindow?, stale: Bool, now: Date = Date()) -> String {
-        guard let window, let remaining = window.remainingPercent else { return stale ? "C — !" : "C —" }
-        let suffix = stale ? " !" : ""
-        return "C \(percent(remaining)) · \(countdown(to: window.resetDate, now: now))\(suffix)"
+    public static func statusTitle(window: UsageWindow?, resetsAvailable: Int?, stale: Bool, now: Date = Date()) -> String {
+        let quota: String
+        if let window, let remaining = window.remainingPercent {
+            quota = "C \(percent(remaining)) · \(countdown(to: window.resetDate, now: now))"
+        } else {
+            quota = "C —"
+        }
+        let resets = resetsAvailable.map { " · \(max(0, $0))R" } ?? ""
+        let staleMarker = stale ? " !" : ""
+        return "\(quota)\(resets)\(staleMarker)"
     }
 }
 

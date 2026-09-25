@@ -1,6 +1,6 @@
 # CodexUsage
 
-A native menu bar app for macOS 14 or later. Displays your **remaining weekly Codex allowance** and the time until it resets: `C 61% · 3d 19h`.
+A native menu bar app for macOS 14 or later. Displays your **remaining weekly Codex allowance**, time until it resets, and available reset credits: `C 61% · 3d 19h · 1R`.
 
 ## Build and run
 
@@ -23,6 +23,7 @@ You can copy the app to `/Applications` to keep it outside the development folde
 ## Features
 
 - General weekly allowance, identified by a 10,080-minute window in the `codex` usage group.
+- Available reset-credit count in the menu bar (`1R`, `0R`); omitted if Codex has not supplied the count.
 - Additional account limits, such as Reserve and Codex Spark, with remaining percentages, countdowns, and exact reset dates in your time zone.
 - Plan, additional credit balance, and available reset credits with expiration dates, when provided by Codex.
 - Lifetime tokens, daily peak, usage streaks, longest turn, and a chart of the last 30 available activity dates.
